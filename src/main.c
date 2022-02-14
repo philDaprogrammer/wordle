@@ -26,7 +26,9 @@ int isWord(const char *guess, words *wordInfo) {
 
 int charPresent(char c, const char *word) { 
    for (int i=0; i < WORD_SIZE; ++i) { 
-      if (c == word[i]) {return 1;}
+      if (c == word[i]) { 
+         return 1; 
+      }
    }
 
    return 0;  
@@ -34,7 +36,7 @@ int charPresent(char c, const char *word) {
 
 
 int *getCharacterOccurrence(const char *word) { 
-   int offset   = 0x60;
+   int offset   = 0x61; // special character offset
    int *letters = (int *)calloc(26, sizeof(int));  
 
    for (int i=0; i < WORD_SIZE; ++i) {
@@ -47,7 +49,7 @@ int *getCharacterOccurrence(const char *word) {
 
 void displayGuess(const char *word, const char *guess) { 
    int *letters = getCharacterOccurrence(word); 
-   int offset   = 0x60; 
+   int offset   = 0x61; // special character offset
 
    for (int i=0; i < WORD_SIZE; ++i) { 
       printf("%c ", guess[i]); 
@@ -57,9 +59,9 @@ void displayGuess(const char *word, const char *guess) {
    for (int i=0; i < WORD_SIZE; ++i) { 
       if (word[i] == guess[i]) { 
          printf("O "); 
-      } else if ((charPresent(guess[i], word)) && (letters[word[i] - offset] > 0)) { 
+      } else if ((charPresent(guess[i], word)) && (letters[guess[i] - offset] > 0)) { 
          printf("_ ");  
-         letters[word[i] - offset] -= 1;
+         letters[guess[i] - offset] -= 1;
       } else { 
          printf("X "); 
       } 
@@ -71,17 +73,13 @@ void displayGuess(const char *word, const char *guess) {
 
 void playGame(const char *word, words *wordInfo) { 
    char *guess = (char *)malloc(WORD_SIZE + 1); 
-   size_t  len = 0; 
    int i       = 0; 
 
    while (i < TRIES) { 
       printf("Guess: "); 
       fgets(guess, MAX_INPUT, stdin); 
-
-      if (guess[strlen(guess)-1] == '\n') { 
-         guess[strlen(guess)-1] = '\0'; 
-      } 
-
+      guess[strlen(guess)-1] = '\0'; // remove the trailing new line character from input
+     
       if ((strlen(guess) > WORD_SIZE) || (!isWord(guess, wordInfo))) { 
          printf("Invalid guess... Try again\n\n");
          continue; 
@@ -105,15 +103,13 @@ char *getRandomWord(char **bank, int bankSize) {
    return bank[rand() % bankSize]; 
 } 
 
-
 int main(int argc, char *argv[]) { 
-   char *filePath         = "/home/phil/Programs/c/cse421/wordle/bank.txt"; 
-   char *buffer           = readFile(filePath); 
-   words *wordInfo        = (words *)malloc(sizeof(words)); 
-   wordInfo->bankSize     = getBankSize(buffer); 
-   wordInfo->bank         = parse(buffer, wordInfo->bankSize);
-   char *randomWord       = getRandomWord(wordInfo->bank, wordInfo->bankSize); 
-
+   char *filePath     = "~/.wordle/bank.txt"; 
+   char *buffer       = readFile(filePath); 
+   words *wordInfo    = (words *)malloc(sizeof(words)); 
+   wordInfo->bankSize = getBankSize(buffer); 
+   wordInfo->bank     = parse(buffer, wordInfo->bankSize);
+   char *randomWord   = getRandomWord(wordInfo->bank, wordInfo->bankSize); 
 
    playGame(randomWord, wordInfo); 
    return 0; 
