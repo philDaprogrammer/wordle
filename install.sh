@@ -6,7 +6,7 @@
 ####  
 
 
-if [ "$UID" != "0"]; then 
+if [ "$UID" != "0" ]; then 
    echo 'Must be root to place executable in $PATH' 
    exit -1 
 fi 
